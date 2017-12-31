@@ -16,6 +16,18 @@ def gaussianKern(w, s):
 def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
+def sobel(img):
+    data = rgb2gray(img)
+    (w, h) = img.shape[:2]
+    sobelImage = np.zeros((w, h), dtype=np.float)
+    for y in range (1, w-1):
+        for x in range (1, h-1):
+            sumx = data[(y - 1), x - 1] - data[(y - 1), x + 1] + (2 * data[y, x - 1]) - (2 * data[y, x + 1]) + data[(y + 1), x - 1] - data[(y + 1), + x + 1]
+            sumy = data[(y - 1), x - 1] + (2 * data[(y - 1), x]) + data[(y - 1), x + 1] - data[(y + 1), x - 1] - (2 * data[(y + 1), x]) - data[(y + 1), x + 1]
+            result = np.sqrt(sumx * sumx + sumy * sumy)
+            sobelImage[y, x] = result
+    return imThreshold(sobelImage, 100, 255)
+
 # function for image thresholding with values under 0 and over 0
 def imThreshold0(img, threshold, maxValT):
     assert len(img.shape) == 2 # input image has to be gray
@@ -108,15 +120,15 @@ for y in range (1, 10):
         matrixcon[y, x] = value
 
 lapImg = laplacian(img, matrixcon)
-cannyImg = canny_enhancer_nonmax_sup(img, matrix)
-plt.subplot(4, 5, 1)
+sobelImg = sobel(img)
+
+plt.subplot(2, 1, 1)
 plt.title('Zero Crossing')
 plt.imshow(lapImg, cmap = plt.get_cmap('gray'))
 plt.axis('off')
 
-plt.subplot(4, 5, 2)
-plt.title('Canny')
-plt.imshow(cannyImg, cmap = plt.get_cmap('gray'))
+plt.subplot(2, 1, 2)
+plt.title('Sobel')
+plt.imshow(sobelImg, cmap = plt.get_cmap('gray'))
 plt.axis('off')
-
 plt.show()
